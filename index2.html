@@ -1,0 +1,107 @@
+<head>
+    <title>Pjanoo</title>
+</head>
+<body>
+    <button onclick="playPercussions()">play percussions</button>
+    <button onclick="playBase()">play the base</button>
+    <button onclick="playMelody()">play the melody</button>
+   
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.35/Tone.min.js"></script>
+    <script>
+        let kickSequence, clapSequence, harp, piano, piano_harmony;
+        let kick, clap, base, synth1, synth2;
+            function playPercussions() {
+                        const kick = new Tone.MembraneSynth({
+                            pitchDecay: 0.05,
+                            octaves: 4,
+                            oscillator: {
+                                type: "sine",
+                        },
+                        envelope: {
+                            attack: 0.001,
+                            decay: 0.2,
+                            sustain: 0,
+                            release: 1,
+                            attackCurve: "exponential"
+                        }
+                    }).toDestination();
+
+                        const reverb = new Tone.Reverb({
+                            decay: 1.5,
+                            preDelay: 0.01,
+                            wet: 0.5
+                        }).toDestination();
+
+                        kick.connect(reverb);
+
+                        const clap = new Tone.NoiseSynth({
+                            noise: {
+                                type: 'white'
+                            },
+                            envelope: {
+                                attack: 0.001,
+                                decay: 0.2,
+                                sustain: 0.01,
+                                release: 0.1
+                            }
+                        }).toDestination();
+
+                        clap.connect(reverb);
+
+                        const kickSequence = new Tone.Sequence((time) => {
+                            kick.triggerAttackRelease("C2", "8n", time);
+                        }, [true, null, true, null], "4n");
+                        const clapSequence = new Tone.Sequence((time) => {
+                            clap.triggerAttackRelease("8n", time);
+                        }, [null, true, null, true], "4n");
+
+                        Tone.Transport.bpm.value = 120;
+
+                        kickSequence.start(0);
+                        clapSequence.start(0);
+                        Tone.Transport.start();
+                    }
+
+            function playBase() {
+                const base = new Tone.Synth({
+                    oscillator : {type: "sine"}
+                }).toDestination();
+
+                const harp = new Tone.Sequence((time, note)=> {
+                    base.triggerAttackRelease(note, 0.25, time);
+                }, ["C5", "D5", "F5", "D5", "D5", "F5", "C5", "D5", "G5", "C5", "D5", "F5", "C5", "D5", "F5", "C5", "D5", "F5", "C5", "D5", "F5", "C5", "D5", "G5", "C5", "D5", "F5", "C5", "D5", "F5", "C5", "D5", "F5", "C5", "D5", "F5", "C5", "D5", "G5", "C5", "D5", "F5", "C5", "D5", "F5", "C5", "D5", "F5", "C5", "D5", "G5", "C5", "D5", "Bb5", "C6", "C5", "D5", "G5", "C5", "D5", "Bb5", "C5", "D5", "F5"], "16n");
+                harp.start();
+                Tone.Transport.start();
+            }
+
+            function playMelody() { 
+
+                const synth1 = new Tone.Synth().toDestination();
+
+                const piano = new Tone.Sequence((time, note) => {
+                    synth1.triggerAttackRelease(note, 0.25, time);
+                }, ["Bb4", "Bb4", "A4", "A4", "G4", "G4", "G4", "G4"], "8n");
+                
+                const synth2 = new Tone.Synth().toDestination();
+
+                const piano_harmony = new Tone.Sequence((time, note) => {
+            synth2.triggerAttackRelease(note, 0.25, time);
+                }, ["G4", "G4", "F4", "F4", "D4", "D4", "D4", "D4"], "8n");
+                
+                const tremolo = new Tone.Tremolo({
+                   frequency: 10,
+                   depth: 0.9,
+                   spread: 180
+                }).toDestination();
+                synth1.connect(tremolo);
+                synth2.connect(tremolo);
+                tremolo.start();
+
+                piano.start();
+                piano_harmony.start();
+                
+                Tone.Transport.start();
+        }
+
+    </script>
+    </body>
